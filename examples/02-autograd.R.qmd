@@ -7,17 +7,20 @@ library(dplyr)
 # Computing derivatives with autograd
 
 x <- torch_tensor(1, requires_grad = TRUE)
-y <- 2 * x
+x$requires_grad
+
+y <- 2 * x #dy/dx = 2
+
 y$backward()
 x$grad
 
 x <- torch_tensor(100, requires_grad = TRUE)
-y <- x^2
+y <- x^2 # dy/dx = 2*x^(2-1) = 2x
 y$backward()
 x$grad
 
 x <- torch_tensor(1, requires_grad = TRUE)
-y <- 2 * x^2
+y <- 2 * x^2 # dy/dx = 4x
 y$backward()
 x$grad
 

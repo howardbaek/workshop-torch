@@ -6,67 +6,87 @@ editor: visual
 
 # What's torch
 
-- A port of PyTorch for R, using the same C++ libraries that are used in PyTorch.
+-   A port of PyTorch for R, using the same C++ libraries that are used in PyTorch.
 
-- A scientific computing library providing a consistent API for computing on arrays.
+-   A scientific computing library providing a consistent API for computing on arrays.
 
 # What's torch
 
-- Strong support for hardware acceleration, such as GPU usage.
+-   Strong support for hardware acceleration, such as GPU usage.
 
-- A deep learning framework - implements most of the building blocks of modern deep learning models, such as layers and optimizers.
+-   A deep learning framework - implements most of the building blocks of modern deep learning models, such as layers and optimizers.
 
-- Built-in automatic differentiation system called *autograd*.
+-   Built-in automatic differentiation system called *autograd*.
 
 # Example 1
 
+# Autograd
+
+Autograd is torch's built-in automatic differentiation system. 
+
+- Most (if not all) deep learning models are trained with some variation of gradient descent, which requires computing derivatives.
+
+- Computing derivatives is also pretty useful in statistical modeling.
+
+- Autograd computes exact derivatives (ie. it doesn't use numerical differentiation techs).
+
 # How autograd works
 
-> Autograd is a reverse automatic differentiation system. Conceptually, autograd records a graph recording all of the operations that created the data as you execute operations, giving you a directed acyclic graph whose leaves are the input tensors and roots are the output tensors. By tracing this graph from roots to leaves, you can automatically compute the gradients using the chain rule.
+- autograd (automatic differentiation) computes gradients by tracking operations on tensors. 
 
-From [autograd mechanics](https://pytorch.org/docs/stable/notes/autograd.html#how-autograd-encodes-the-history).
+- When you perform operations on tensors with `requires_grad = TRUE`, autograd builds a computation graph. Each node in this graph is an operation, and the edges are tensors. 
+
+- When you call `$backward()`, autograd traverses this graph in reverse to compute and store gradients for each tensor with respect to the loss. These gradients can the be accessed in the `$grad` attribute of tensors.
+
+## Additional resources
+
+- [Deep Learning and Scientific computing with R torch - Chapter 4](https://skeydan.github.io/Deep-Learning-and-Scientific-Computing-with-R-torch/autograd.html)
+
+- [PyTorch Autograd Explained - In-depth Tutorial](https://youtu.be/MswxJw-8PvE?si=yIx90Ye1bzr_g4fq)
+
+- [The fundamentals of autograd](https://pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html)
+
+- [MiniTorch](https://minitorch.github.io)
 
 # Example 2
 
 # `nn_module`s
 
-- `nn_module`s are a way to represent functions that have *parameters* as their state.
+-   `nn_module`s are a way to represent functions that have *parameters* as their state.
 
-- It's the building block of neural network implementations in torch.
+-   It's the building block of neural network implementations in torch.
 
-- Just like functions, they can be combined creating higher level modules.
+-   Just like functions, they can be combined creating higher level modules.
 
 # Optimizers
 
-- torch includes an optimization library: objects with prefix `optim_`.
+-   torch includes an optimization library: objects with prefix `optim_`.
 
-- Help updating parameters as you train the model in the correct way.
+-   Help updating parameters as you train the model in the correct way.
 
-- Also allow for more advanced algorithms such as Adam, Adagrad, etc.
+-   Also allow for more advanced algorithms such as Adam, Adagrad, etc.
 
 # Example 3
 
 # luz
 
-- [high-level interface](https://github.com/mlverse/luz) for torch
+-   [high-level interface](https://github.com/mlverse/luz) for torch
 
-- abstracts away much of the verbosity in your training loop
+-   abstracts away much of the verbosity in your training loop
 
-- is still very flexible and extensible
+-   is still very flexible and extensible
 
-- support for metrics and validation sets.
+-   support for metrics and validation sets.
 
 # Example 4
 
 # Datasets
 
-- torch datasets are used to modularize code to pre-process and obtain samples
-  from datasets.
-  
-- sometimes loading all your data into a single tensors is not possible because
-  it would use too much RAM.
-  
-- you can use pre-built datasets such as those available in [torchdatasets](https://github.com/mlverse/torchdatasets) or from [torchvision](https://github.com/mlverse/torchvision).
+-   torch datasets are used to modularize code to pre-process and obtain samples from datasets.
+
+-   sometimes loading all your data into a single tensors is not possible because it would use too much RAM.
+
+-   you can use pre-built datasets such as those available in [torchdatasets](https://github.com/mlverse/torchdatasets) or from [torchvision](https://github.com/mlverse/torchvision).
 
 # Example 5
 

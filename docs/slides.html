@@ -351,14 +351,34 @@
 
 </section>
 
-<section id="how-autograd-works" class="title-slide slide level1 center">
-<h1>How autograd works</h1>
-<blockquote>
-<p>Autograd is a reverse automatic differentiation system. Conceptually, autograd records a graph recording all of the operations that created the data as you execute operations, giving you a directed acyclic graph whose leaves are the input tensors and roots are the output tensors. By tracing this graph from roots to leaves, you can automatically compute the gradients using the chain rule.</p>
-</blockquote>
-<p>From <a href="https://pytorch.org/docs/stable/notes/autograd.html#how-autograd-encodes-the-history">autograd mechanics</a>.</p>
+<section id="autograd" class="title-slide slide level1 center">
+<h1>Autograd</h1>
+<p>Autograd is torch’s built-in automatic differentiation system.</p>
+<ul>
+<li><p>Most (if not all) deep learning models are trained with some variation of gradient descent, which requires computing derivatives.</p></li>
+<li><p>Computing derivatives is also pretty useful in statistical modeling.</p></li>
+<li><p>Autograd computes exact derivatives (ie. it doesn’t use numerical differentiation techs).</p></li>
+</ul>
 </section>
 
+<section>
+<section id="how-autograd-works" class="title-slide slide level1 center">
+<h1>How autograd works</h1>
+<ul>
+<li><p>autograd (automatic differentiation) computes gradients by tracking operations on tensors.</p></li>
+<li><p>When you perform operations on tensors with <code>requires_grad = TRUE</code>, autograd builds a computation graph. Each node in this graph is an operation, and the edges are tensors.</p></li>
+<li><p>When you call <code>$backward()</code>, autograd traverses this graph in reverse to compute and store gradients for each tensor with respect to the loss. These gradients can the be accessed in the <code>$grad</code> attribute of tensors.</p></li>
+</ul>
+</section>
+<section id="additional-resources" class="slide level2">
+<h2>Additional resources</h2>
+<ul>
+<li><p><a href="https://skeydan.github.io/Deep-Learning-and-Scientific-Computing-with-R-torch/autograd.html">Deep Learning and Scientific computing with R torch - Chapter 4</a></p></li>
+<li><p><a href="https://youtu.be/MswxJw-8PvE?si=yIx90Ye1bzr_g4fq">PyTorch Autograd Explained - In-depth Tutorial</a></p></li>
+<li><p><a href="https://pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html">The fundamentals of autograd</a></p></li>
+<li><p><a href="https://minitorch.github.io">MiniTorch</a></p></li>
+</ul>
+</section></section>
 <section id="example-2" class="title-slide slide level1 center">
 <h1>Example 2</h1>
 

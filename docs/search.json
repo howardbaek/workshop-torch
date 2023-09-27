@@ -1,0 +1,72 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Deep Learning with torch in R",
+    "section": "",
+    "text": "Deep Learning has grown exponentially in recent years and has powered breakthroughs in fields such as computer vision and natural language processing. In this workshop you will learn the basics of torch and its ecosystem, build and train deep learning models with torch.\nThis website hosts materials used in the Workshop for Ukraine."
+  },
+  {
+    "objectID": "index.html#setup-instructions",
+    "href": "index.html#setup-instructions",
+    "title": "Deep Learning with torch in R",
+    "section": "Setup instructions",
+    "text": "Setup instructions\nYou will need an R installation with the follwoing packages:\ninstall.packages(c(\"torch\", \"luz\", \"torchvision\", \"tidyverse\", \"zeallot\"))\nremotes::install_github(\"mlverse/minhub\")\nIf you have trouble installing torch, you can also try installing from pre-built binaries."
+  },
+  {
+    "objectID": "index.html#slides",
+    "href": "index.html#slides",
+    "title": "Deep Learning with torch in R",
+    "section": "Slides",
+    "text": "Slides\nFind the slides here."
+  },
+  {
+    "objectID": "index.html#code-examples",
+    "href": "index.html#code-examples",
+    "title": "Deep Learning with torch in R",
+    "section": "Code examples",
+    "text": "Code examples\n\n\n\n\n\n\nTitle\n\n\n\n\n\n\n01-basics.R\n\n\n\n\n02-autograd.R\n\n\n\n\n03-nn-optim.R\n\n\n\n\n04-luz.R\n\n\n\n\n05-mnist.R\n\n\n\n\n06-chargpt.R\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "examples/03-nn-optim.R.html",
+    "href": "examples/03-nn-optim.R.html",
+    "title": "workshop-torch",
+    "section": "",
+    "text": "03-nn-optim.R\nlibrary(torch)\n\n# if we'd like to modularize our code using just R tools, we probably would\n# do something like this;\n\nlinear_model <- function(x, state) {\n  x$mm(state$W) + state$b\n}\n\nstate <- list(\n  W = torch_randn(10, 1, requires_grad = TRUE),\n  b = torch_zeros(1, 1, requires_grad = TRUE)\n)\n\n# train on mtcars ------\n\nx <- mtcars %>% select(-mpg) %>% scale()\ny <- scale(mtcars$mpg)\n\nlr <- 0.001\n\nx_t <- torch_tensor(x)\ny_t <- torch_tensor(y)\n\n\nfor (i in 1:50000) {\n  \n  # we use a function here\n  y_hat <- linear_model(x_t, state)\n  \n  loss <- torch_mean((y_t$view(c(-1, 1)) - y_hat)^2)\n  \n  loss$backward()\n  \n  # we can gradient updates in a for loop\n  with_no_grad({\n    for(param in state) {\n      param$sub_(lr * param$grad)\n      param$grad$zero_()\n    }\n  })\n  \n  if (i %% 1000 == 0)\n    cat(\"Loss \", loss$item(), \"\\n\")\n}"
+  },
+  {
+    "objectID": "examples/06-chargpt.R.html",
+    "href": "examples/06-chargpt.R.html",
+    "title": "workshop-torch",
+    "section": "",
+    "text": "06-chargpt.R\nlibrary(torch)\nlibrary(luz)\nlibrary(zeallot)\n\n# Implement the dataset -------------------------------------------------\n\nurl <- \"https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt\"\n\nchar_dataset <- torch::dataset(\n  initialize = function(data, block_size = 128) {\n    self$block_size <- block_size\n    self$data <- stringr::str_split_1(data, \"\")\n    \n    self$data_size <- length(self$data)\n    self$vocab <- unique(self$data)\n    self$vocab_size <- length(self$vocab)\n  },\n  .getitem = function(i) {\n    chunk <- self$data[i + seq_len(self$block_size + 1)]\n    idx <- match(chunk, self$vocab)\n    list(\n      x = head(idx, self$block_size),\n      y = tail(idx, self$block_size)\n    )\n  },\n  .length = function() {\n    self$data_size - self$block_size - 1L # this is to account the last value\n  }\n)\n\ndataset <- char_dataset(readr::read_file(url))\ndataset[1] # this allows us to see an element of the dataset\n\n\n# Implement the nn module -------------------------------------------------\n\nmodel <- torch::nn_module(\n  initialize = function(vocab_size) {\n    # remotes::install_github(\"mlverse/minhub\")\n    self$gpt <- minhub::gpt2(\n      vocab_size = vocab_size,\n      n_layer = 6,\n      n_head = 6,\n      n_embd = 192\n    )\n  },\n  forward = function(x) {\n    # we have to transpose to make the vocabulary the last dimension\n    self$gpt(x)$transpose(2,3)\n  },\n  generate = function(x, temperature = 1, iter = 50, top_k = 10) {\n    # samples from the model givn a context vector.\n    for (i in seq_len(iter)) {\n      logits <- self$forward(x)[,,-1]\n      logits <- logits/temperature\n      c(prob, ind) %<-% logits$topk(top_k)\n      logits <- torch_full_like(logits, -Inf)$scatter_(-1, ind, prob)\n      logits <- nnf_softmax(logits, dim = -1)\n      id_next <- torch_multinomial(logits, num_samples = 1)\n      x <- torch_cat(list(x, id_next), dim = 2)\n    }\n    x\n  }\n)\n\n# A luz callback ----------------------------------------------------------\n\n# samples from the model using the context.\ngenerate <- function(model, vocab, context, ...) {\n  local_no_grad() # disables gradient for sampling\n  x <- match(stringr::str_split_1(context, \"\"), vocab)\n  x <- torch_tensor(x)[NULL,]$to(device = model$device)\n  content <- as.integer(model$generate(x, ...)$cpu())\n  paste0(vocab[content], collapse = \"\")\n}\n\ndisplay_cb <- luz_callback(\n  initialize = function(iter = 500) {\n    self$iter <- iter # print every 500 iterations\n  },\n  on_train_batch_end = function() {\n    if (!(ctx$iter %% self$iter == 0))\n      return()\n    \n    with_no_grad({\n      # sample from the model...\n      context <- \"O God, O God!\"\n      text <- generate(ctx$model, dataset$vocab, context, iter = 100)\n      cli::cli_h3(paste0(\"Iter \", ctx$iter))\n      cli::cli_text(text)\n    })\n  }\n)\n\n# Fit with luz ------------------------------------------------------------\n\nfitted <- model |>\n  setup(\n    loss = nn_cross_entropy_loss(),\n    optimizer = optim_adam\n  ) |>\n  set_opt_hparams(lr = 5e-4) |>\n  set_hparams(vocab_size = dataset$vocab_size) |>\n  fit(\n    dataset,\n    dataloader_options = list(batch_size = 128, shuffle = TRUE),\n    epochs = 1,\n    callbacks = list(\n      display_cb(iter = 500),\n      luz_callback_gradient_clip(max_norm = 1)\n    )\n  )\n\nluz_save(fitted, \"chargpt.safe\")\n\ncontext <- \"O God, O God!\"\ntext <- generate(fitted$model, dataset$vocab, context, iter = 100)\ncat(text)"
+  },
+  {
+    "objectID": "examples/02-autograd.R.html",
+    "href": "examples/02-autograd.R.html",
+    "title": "workshop-torch",
+    "section": "",
+    "text": "02-autograd.R\nlibrary(torch)\nlibrary(dplyr)\n\n# Computing derivatives with autograd\n\nx <- torch_tensor(1, requires_grad = TRUE)\ny <- 2 * x\ny$backward()\nx$grad\n\nx <- torch_tensor(100, requires_grad = TRUE)\ny <- x^2\ny$backward()\nx$grad\n\nx <- torch_tensor(1, requires_grad = TRUE)\ny <- 2 * x^2\ny$backward()\nx$grad\n\n\n# Regression on mtcars\n\n# first let's get the baseline with base R's lm\nx <- mtcars %>% select(-mpg) %>% scale()\ny <- scale(mtcars$mpg)\n\nscale_mtcars <- mtcars %>% mutate(across(everything(), scale))\nmod <- lm(mpg ~ ., data = scale_mtcars)\nsummary(mod)\n\nmean(mod$residuals^2) # MSE from lm\n\n# Now the same with torch\n\nlr <- 0.001\n\nW <- torch_randn(10, 1, requires_grad = TRUE)\nb <- torch_zeros(1, 1, requires_grad = TRUE)\n\nx_t <- torch_tensor(x)\ny_t <- torch_tensor(y)\n\nfor (i in 1:50000) {\n  y_hat <- x_t$mm(W) + b # forward pass\n  loss <- torch_mean((y_t$view(c(-1, 1)) - y_hat)^2)\n  \n  loss$backward()\n  \n  with_no_grad({\n    W$sub_(lr * W$grad)\n    b$sub_(lr * b$grad)\n    \n    W$grad$zero_()\n    b$grad$zero_()\n  })\n  \n  if (i %% 1000 == 0)\n    cat(\"Loss \", loss$item(), \"\\n\")\n}\n\n\ncoef(mod)\nc(as.numeric(b), as.numeric(W))\n\n# Exercise!\n# Can you minimize the rosenbrock function using gradient descent?\n\nrosenbrock <- function(x) {\n  x1 <- x[1]\n  x2 <- x[2]\n  (a - x1)^2 + b * (x2 - x1^2)^2\n}\n\n# tip: https://skeydan.github.io/Deep-Learning-and-Scientific-Computing-with-R-torch/optim_1.html"
+  },
+  {
+    "objectID": "examples/05-mnist.R.html",
+    "href": "examples/05-mnist.R.html",
+    "title": "workshop-torch",
+    "section": "",
+    "text": "05-mnist.R\nlibrary(torch)\nlibrary(luz)\nlibrary(torchvision)\n\n# create a dataset --------------------------------------------------------\n\nroot <- \"./datasets/mnist\"\n\ntransform <- function(x) {\n  x %>% \n    transform_to_tensor() %>% \n    torch_flatten()\n}\n\ntrain_ds <- mnist_dataset(root, transform = transform, download = TRUE)\ntest_ds <- mnist_dataset(root, transform = transform, train = FALSE)\n\n\n# Define the neural net ---------------------------------------------------\n\nnet <- nn_module(\n  \"MLP\",\n  initialize = function(in_features, out_features) {\n    self$linear1 <- nn_linear(in_features, 512)\n    self$linear2 <- nn_linear(512, 256)\n    self$linear3 <- nn_linear(256, out_features)\n    self$relu <- nn_relu()\n  },\n  forward = function(x) {\n    x %>% \n      self$linear1() %>% \n      self$relu() %>% \n      self$linear2() %>% \n      self$relu() %>% \n      self$linear3()\n  }\n)\n\n# fit with luz ------------------------------------------------------------\n\nfitted <- net %>% \n  setup(\n    loss = nnf_cross_entropy,\n    optim = optim_adam,\n    metrics = list(\n      luz_metric_accuracy()\n    )\n  ) %>% \n  set_hparams(in_features = 784, out_features = 10) %>% \n  set_opt_hparams(lr = 1e-3) %>% \n  fit(train_ds, valid_data = 0.2, epochs = 2)\n\n\nfitted %>% \n  evaluate(test_ds)"
+  },
+  {
+    "objectID": "examples/04-luz.R.html",
+    "href": "examples/04-luz.R.html",
+    "title": "workshop-torch",
+    "section": "",
+    "text": "04-luz.R\nlibrary(torch)\nlibrary(luz)\n\nx <- mtcars %>% select(-mpg) %>% scale()\ny <- scale(mtcars$mpg)\n\nlr <- 0.001\n\nx_t <- torch_tensor(x)\ny_t <- torch_tensor(y)\n\nfitted <- nn_linear %>% \n  setup(\n    optimizer = optim_sgd,\n    loss = function(y_hat, y) {\n      torch_mean((y$view(c(-1, 1)) - y_hat)^2)\n    }\n  ) %>% \n  set_opt_hparams(lr = 0.001) %>% \n  set_hparams(in_features = 10, out_features = 1) %>% \n  fit(\n    list(x_t, y_t),\n    epochs = 10000,\n    dataloader_options = list(batch_size = 32)\n  )"
+  },
+  {
+    "objectID": "examples/01-basics.R.html",
+    "href": "examples/01-basics.R.html",
+    "title": "workshop-torch",
+    "section": "",
+    "text": "01-basics.R\nlibrary(torch)\n\nm <- matrix(runif(1000), nrow = 100)\na <- array(runif(10000), dim = c(100, 10, 10))\n\n# create torch tensors from R objects\n\nt_m <- torch_tensor(m)\nt_a <- torch_tensor(a)\n\n# back to R\n\nas.array(t_m)\n\n# attributes of a tensor\n\nt_m$device\nt_m$dtype\nt_m$shape\nt_m$requires_grad\n\n# methods\n\nt_m$abs()\nt_m$sum()\nt_m$min()\n\n# built-in functions\n\ntorch_mm(t_m, t_m$t())\ntorch_sum(t_m)\ntorch_mean(t_m)\n\n# in-place methods end in `_`\n\nt_m$add_(1)\nt_m # t_m is modified in place, no copy is made\n\n# changing the data type\n\nt_m$to(dtype = \"float64\")\nt_m$to(dtype = torch_float64())\n\n# tensor computations happen on it's current device\n\nmps_tensor <- t_m$to(device=\"mps\") # only available on ARM Macs\n# on GPU's try instead : t_m$to(device=\"cuda\") \n\nout <- torch_mm(mps_tensor, mps_tensor$t())\n\ncpu_tensor <- torch_randn(1000, 1000)\nmps_tensor <- cpu_tensor$to(device=\"mps\")\n\nbench::mark(\n  mps = torch_mm(mps_tensor, mps_tensor$t()),\n  cpu = torch_mm(cpu_tensor, cpu_tensor$t())\n)"
+  }
+]

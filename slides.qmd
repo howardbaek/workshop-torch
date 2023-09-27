@@ -1,0 +1,75 @@
+---
+title: "Deep Learning with torch in R"
+format: revealjs
+editor: visual
+---
+
+# What's torch
+
+- A port of PyTorch for R, using the same C++ libraries that are used in PyTorch.
+
+- A scientific computing library providing a consistent API for computing on arrays.
+
+# What's torch
+
+- Strong support for hardware acceleration, such as GPU usage.
+
+- A deep learning framework - implements most of the building blocks of modern deep learning models, such as layers and optimizers.
+
+- Built-in automatic differentiation system called *autograd*.
+
+# Example 1
+
+# How autograd works
+
+> Autograd is a reverse automatic differentiation system. Conceptually, autograd records a graph recording all of the operations that created the data as you execute operations, giving you a directed acyclic graph whose leaves are the input tensors and roots are the output tensors. By tracing this graph from roots to leaves, you can automatically compute the gradients using the chain rule.
+
+From [autograd mechanics](https://pytorch.org/docs/stable/notes/autograd.html#how-autograd-encodes-the-history).
+
+# Example 2
+
+# `nn_module`s
+
+- `nn_module`s are a way to represent functions that have *parameters* as their state.
+
+- It's the building block of neural network implementations in torch.
+
+- Just like functions, they can be combined creating higher level modules.
+
+# Optimizers
+
+- torch includes an optimization library: objects with prefix `optim_`.
+
+- Help updating parameters as you train the model in the correct way.
+
+- Also allow for more advanced algorithms such as Adam, Adagrad, etc.
+
+# Example 3
+
+# luz
+
+- [high-level interface](https://github.com/mlverse/luz) for torch
+
+- abstracts away much of the verbosity in your training loop
+
+- is still very flexible and extensible
+
+- support for metrics and validation sets.
+
+# Example 4
+
+# Datasets
+
+- torch datasets are used to modularize code to pre-process and obtain samples
+  from datasets.
+  
+- sometimes loading all your data into a single tensors is not possible because
+  it would use too much RAM.
+  
+- you can use pre-built datasets such as those available in [torchdatasets](https://github.com/mlverse/torchdatasets) or from [torchvision](https://github.com/mlverse/torchvision).
+
+# Example 5
+
+# CharGPT
+
+# Example 6

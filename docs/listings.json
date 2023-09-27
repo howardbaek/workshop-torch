@@ -1,0 +1,13 @@
+[
+  {
+    "listing": "/index.html",
+    "items": [
+      "/examples/01-basics.R.html",
+      "/examples/02-autograd.R.html",
+      "/examples/03-nn-optim.R.html",
+      "/examples/04-luz.R.html",
+      "/examples/05-mnist.R.html",
+      "/examples/06-chargpt.R.html"
+    ]
+  }
+]

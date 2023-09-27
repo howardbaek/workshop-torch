@@ -1,0 +1,12 @@
+---
+params:
+  file: '01-basics.R'
+output: 
+  md_document:
+    variant: gfm
+---
+
+# `r params$file`
+
+```{r, file=params$file, eval = FALSE}
+```

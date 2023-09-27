@@ -1,0 +1,21 @@
+project:
+  type: website
+  pre-render:
+    - examples/examples.sh
+  output-dir: docs
+
+website:
+  title: "workshop-torch"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+
+

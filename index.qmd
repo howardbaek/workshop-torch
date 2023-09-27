@@ -1,0 +1,41 @@
+---
+title: "Deep Learning with torch in R"
+listing:
+  id: examples
+  sort-ui: false
+  filter-ui: false
+  contents: 
+    - examples
+  type: table
+  fields: [title]
+---
+
+Deep Learning has grown exponentially in recent years and has powered breakthroughs in fields such as computer vision and natural language processing. In this workshop you will learn the basics of torch and its ecosystem, build and train deep learning models with torch.
+
+This website hosts materials used in the [Workshop for Ukraine](https://sites.google.com/view/dariia-mykhailyshyna/main/r-workshops-for-ukraine#h.bjmk3ceostwa).
+
+## Setup instructions
+
+You will need an R installation with the follwoing packages:
+
+``` r
+install.packages(c("torch", "luz", "torchvision", "tidyverse", "zeallot"))
+remotes::install_github("mlverse/minhub")
+```
+
+If you have trouble installing torch, you can also try [installing from pre-built
+binaries](https://torch.mlverse.org/docs/articles/installation#installing-from-pre-built-binaries).
+
+## Slides
+
+Find the [slides here](slides.html).
+
+## Code examples
+
+::: {#examples}
+:::
+
+
+# References
+
+- [Deep Learning and Scientific Computing with R torch](https://skeydan.github.io/Deep-Learning-and-Scientific-Computing-with-R-torch/)

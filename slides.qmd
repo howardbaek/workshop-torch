@@ -22,31 +22,31 @@ editor: visual
 
 # Autograd
 
-Autograd is torch's built-in automatic differentiation system. 
+Autograd is torch's built-in automatic differentiation system.
 
-- Most (if not all) deep learning models are trained with some variation of gradient descent, which requires computing derivatives.
+-   Most (if not all) deep learning models are trained with some variation of gradient descent, which requires computing derivatives.
 
-- Computing derivatives is also pretty useful in statistical modeling.
+-   Computing derivatives is also pretty useful in statistical modeling.
 
-- Autograd computes exact derivatives (ie. it doesn't use numerical differentiation techs).
+-   Autograd computes exact derivatives (ie. it doesn't use numerical differentiation techs).
 
 # How autograd works
 
-- autograd (automatic differentiation) computes gradients by tracking operations on tensors. 
+-   autograd (automatic differentiation) computes gradients by tracking operations on tensors.
 
-- When you perform operations on tensors with `requires_grad = TRUE`, autograd builds a computation graph. Each node in this graph is an operation, and the edges are tensors. 
+-   When you perform operations on tensors with `requires_grad = TRUE`, autograd builds a computation graph. Each node in this graph is an operation, and the edges are tensors.
 
-- When you call `$backward()`, autograd traverses this graph in reverse to compute and store gradients for each tensor with respect to the loss. These gradients can the be accessed in the `$grad` attribute of tensors.
+-   When you call `$backward()`, autograd traverses this graph in reverse to compute and store gradients for each tensor with respect to the loss. These gradients can the be accessed in the `$grad` attribute of tensors.
 
 ## Additional resources
 
-- [Deep Learning and Scientific computing with R torch - Chapter 4](https://skeydan.github.io/Deep-Learning-and-Scientific-Computing-with-R-torch/autograd.html)
+-   [Deep Learning and Scientific computing with R torch - Chapter 4](https://skeydan.github.io/Deep-Learning-and-Scientific-Computing-with-R-torch/autograd.html)
 
-- [PyTorch Autograd Explained - In-depth Tutorial](https://youtu.be/MswxJw-8PvE?si=yIx90Ye1bzr_g4fq)
+-   [PyTorch Autograd Explained - In-depth Tutorial](https://youtu.be/MswxJw-8PvE?si=yIx90Ye1bzr_g4fq)
 
-- [The fundamentals of autograd](https://pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html)
+-   [The fundamentals of autograd](https://pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html)
 
-- [MiniTorch](https://minitorch.github.io)
+-   [MiniTorch](https://minitorch.github.io)
 
 # Example 2
 
@@ -87,6 +87,10 @@ Autograd is torch's built-in automatic differentiation system.
 -   sometimes loading all your data into a single tensors is not possible because it would use too much RAM.
 
 -   you can use pre-built datasets such as those available in [torchdatasets](https://github.com/mlverse/torchdatasets) or from [torchvision](https://github.com/mlverse/torchvision).
+
+# MNIST dataset
+
+![Samples from the MNIST dataset disposed in a grid. They are composed of pictures of handwritten digits from 0 to 9.](https://miro.medium.com/v2/resize:fit:850/1*VOP5sC-T2EWm8RmBNGpCUg.png)
 
 # Example 5
 

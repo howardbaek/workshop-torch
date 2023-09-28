@@ -119,4 +119,8 @@ luz_save(fitted, "chargpt.safe")
 context <- "O God, O God!"
 text <- generate(fitted$model, dataset$vocab, context, iter = 100)
 cat(text)
+
+# Exercise:
+# Can you train a GPT model that learns how to add n-digit numbers?
+# Take inspiration from https://github.com/karpathy/minGPT/tree/master/projects/adder
 ```

@@ -1,5 +1,6 @@
 library(torch)
 library(luz)
+library(dplyr)
 
 x <- mtcars %>% select(-mpg) %>% scale()
 y <- scale(mtcars$mpg)
@@ -20,6 +21,13 @@ fitted <- nn_linear %>%
   set_hparams(in_features = 10, out_features = 1) %>% 
   fit(
     list(x_t, y_t),
-    epochs = 10000,
+    epochs = 100,
     dataloader_options = list(batch_size = 32)
   )
+
+luz_save(fitted, "model.luz")
+
+predict(fitted, x_t)
+plot(fitted)
+
+

@@ -55,7 +55,10 @@ fitted %>%
   evaluate(test_ds)
   
 
+# Exercise:
 
+# Can you improve this model with techniques learned in Chapter 15 of Dl with R book?
+# https://skeydan.github.io/Deep-Learning-and-Scientific-Computing-with-R-torch/image_classification_1.html#classification-on-tiny-imagenet
 
 
 

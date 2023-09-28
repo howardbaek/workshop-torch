@@ -35,7 +35,6 @@ Find the [slides here](slides.html).
 ::: {#examples}
 :::
 
-
 # References
 
 - [Deep Learning and Scientific Computing with R torch](https://skeydan.github.io/Deep-Learning-and-Scientific-Computing-with-R-torch/)

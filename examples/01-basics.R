@@ -54,6 +54,7 @@ mps_tensor <- t_m$to(device="mps") # only available on ARM Macs
 # 'cuda_is_available()' is the function that tells you if CUDA is available
 
 out <- torch_mm(mps_tensor, mps_tensor$t())
+# in general, you can't mix GPU tensors and CPU tensors
 out$to(device="cpu")
 
 cpu_tensor <- torch_randn(10000, 10000)

@@ -6,15 +6,15 @@ library(dplyr)
 x <- torch_tensor(1, requires_grad = TRUE)
 x$requires_grad
 
-y <- 2 * x #dy/dx = 2
+y <- 2 * x # dy/dx = 2
 
 y$backward()
 x$grad
 
 x <- torch_tensor(100, requires_grad = TRUE)
 y <- x^2 # dy/dx = 2*x^(2-1) = 2x
-y$backward()
-x$grad
+y$backward() # invisible
+x$grad # 200
 
 x <- torch_tensor(1, requires_grad = TRUE)
 y <- 2 * x^2 # dy/dx = 4x
@@ -25,9 +25,10 @@ x$grad
 # Regression on mtcars
 
 # first let's get the baseline with base R's lm
-x <- mtcars %>% select(-mpg) %>% scale()
+x <- mtcars %>% select(-mpg) %>% scale() # normal scaled
 y <- scale(mtcars$mpg)
 
+# Baseline from lm model
 scale_mtcars <- mtcars %>% mutate(across(everything(), scale))
 mod <- lm(mpg ~ ., data = scale_mtcars)
 summary(mod)
@@ -38,19 +39,20 @@ mean(mod$residuals^2) # MSE from lm
 
 lr <- 0.001
 
-W <- torch_randn(10, 1, requires_grad = TRUE)
-b <- torch_zeros(1, 1, requires_grad = TRUE)
+W <- torch_randn(10, 1, requires_grad = TRUE) # Weight is initialized to standard normally distributed numbers 
+b <- torch_zeros(1, 1, requires_grad = TRUE) # Bias is 0, a standard in deep learning models
 
 x_t <- torch_tensor(x)
 y_t <- torch_tensor(y)
 
 for (i in 1:50000) {
-  y_hat <- x_t$mm(W) + b # forward pass
+  y_hat <- x_t$mm(W) + b # forward pass (prediction of y)
   loss <- torch_mean((y_t$view(c(-1, 1)) - y_hat)^2)
   
   loss$backward()
   
-  with_no_grad({
+  with_no_grad({ # Don't be tracked by the autograd
+    # Update parameters
     W$sub_(lr * W$grad)
     b$sub_(lr * b$grad)
     

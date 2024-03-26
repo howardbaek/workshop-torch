@@ -21,13 +21,13 @@ fitted <- nn_linear %>%
   set_hparams(in_features = 10, out_features = 1) %>% 
   fit(
     list(x_t, y_t),
-    epochs = 100,
-    dataloader_options = list(batch_size = 32)
+    epochs = 100, # epoch: how many times you pass through your data
+    dataloader_options = list(batch_size = 32) # batch size: small portion of your data
   )
 
 luz_save(fitted, "model.luz")
 
 predict(fitted, x_t)
-plot(fitted)
+plot(fitted) # get a view of your loss over epoch
 
-
+# luz will automatically detect the fastest device (GPU, CPU, MPS) by default and run computation on the device

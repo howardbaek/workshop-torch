@@ -15,6 +15,9 @@ linear <- nn_module(
   }
 )
 
+# nn_linear() is exactly like the above code chunk, except it takes parameters (in_features, out_features)
+# they are parameters in initialize()
+
 model <- linear() # essentially calling the initialize() function inside linear
 # model() is a function that calls forward()
 model(torch_randn(10, 10))

@@ -6,6 +6,7 @@ library(torchvision)
 
 root <- "./datasets/mnist"
 
+# transform() 
 transform <- function(x) {
   x %>% 
     transform_to_tensor() %>% 
@@ -19,7 +20,7 @@ test_ds <- mnist_dataset(root, transform = transform, train = FALSE)
 # Define the neural net ---------------------------------------------------
 
 net <- nn_module(
-  "MLP",
+  "MLP", # multilayer perceptron (multiple linear models chained together separated by activation function)
   initialize = function(in_features, out_features) {
     self$linear1 <- nn_linear(in_features, 512)
     self$linear2 <- nn_linear(512, 256)
